@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0">
+<meta name="format-detection" content="telephone=no">
+<title>50km補給タイムテーブル</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+    background-color: #f1f5f9;
+    color: #1e293b;
+    line-height: 1.4;
+    padding: 10px 8px 40px 8px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .header {
+    background: #1b365d;
+    color: #ffffff;
+    padding: 14px 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  .header h1 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+  }
+  .header .sub {
+    font-size: 13px;
+    color: #f1c40f;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+  .header .stats {
+    background: rgba(255,255,255,0.18);
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 12px;
+    display: flex;
+    justify-content: space-around;
+    font-weight: bold;
+  }
+  .header .stats span {
+    color: #67e8f9;
+  }
+
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* カードデザイン */
+  .card {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 12px 10px;
+    border-left: 6px solid #94a3b8;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .card.maurten {
+    border-left-color: #059669;
+    background: #f0fdf4;
+  }
+  .card.event {
+    border-left-color: #2563eb;
+    background: #eff6ff;
+  }
+  .card.recovery {
+    border-left-color: #d97706;
+    background: #fffbeb;
+  }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    border-bottom: 1px dashed #cbd5e1;
+    padding-bottom: 6px;
+  }
+  .time-dist {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .time {
+    font-size: 22px;
+    font-weight: 800;
+    color: #1b365d;
+    font-family: inherit;
+  }
+  .dist {
+    font-size: 13px;
+    font-weight: bold;
+    color: #dc2626;
+    background: #fee2e2;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+  .check-area {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #475569;
+    cursor: pointer;
+  }
+  .check-box {
+    width: 22px;
+    height: 22px;
+    accent-color: #059669;
+    cursor: pointer;
+  }
+
+  .item-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #0f172a;
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+  .badge-gel {
+    display: inline-block;
+    background: #059669;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+
+  .water-box {
+    background: #e0f2fe;
+    color: #0369a1;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 6px;
+    border: 1px solid #bae6fd;
+  }
+
+  .info-grid {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #334155;
+    margin-bottom: 6px;
+    background: rgba(0,0,0,0.02);
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+  .info-label {
+    font-weight: bold;
+    color: #64748b;
+  }
+  .info-val {
+    font-weight: bold;
+  }
+
+  .point {
+    font-size: 12px;
+    color: #475569;
+    line-height: 1.35;
+    background: #f8fafc;
+    padding: 6px 8px;
+    border-radius: 4px;
+    border-left: 2px solid #cbd5e1;
+  }
+
+  .footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 11px;
+    color: #64748b;
+    padding: 10px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>日本スリーデーマーチ 50km</h1>
+  <div class="sub">73歳・8分/km モルテン補給タイムテーブル</div>
+  <div class="stats">
+    <div>走行給水: <span>2,500 ml</span></div>
+    <div>走行熱量: <span>1,240 kcal</span></div>
+    <div>カフェイン: <span>0 mg</span></div>
+  </div>
+</div>
+
+<div style="text-align:center; margin-bottom: 12px;">
+  <a href="スマホ用_準備・買い物チェックリスト.html" style="display:inline-block; background:#059669; color:white; text-decoration:none; font-size:13px; font-weight:bold; padding:7px 16px; border-radius:20px; box-shadow:0 2px 4px rgba(0,0,0,0.1);">🛒 準備・買い物リストを見る</a>
+  <button type="button" id="reset-btn" style="background:#dc2626; color:white; border:none; cursor:pointer; font-size:13px; font-weight:bold; padding:7px 16px; border-radius:20px; box-shadow:0 2px 4px rgba(0,0,0,0.1); margin-left:6px;">↺ リセット</button>
+</div>
+
+<!-- 天候別の補給調整幅 -->
+<div style="background:#ffffff; border-radius:8px; padding:12px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,0.08); border:1px solid #cbd5e1;">
+  <div style="font-size:14px; font-weight:bold; color:#1b365d; margin-bottom:8px; text-align:center;">
+    🌤 天候別（晴・曇・雨）補給の調整幅
+  </div>
+  
+  <!-- 晴れ -->
+  <div style="background:#fff7ed; border-left:4px solid #ea580c; padding:6px 8px; border-radius:4px; margin-bottom:6px; font-size:12px;">
+    <b style="color:#ea580c;">☀️ 晴れ（気温18〜23℃・直射日光）</b><br/>
+    ・<b>給水: 2,800〜3,200ml（+500ml増量）</b> 1時間あたり450〜500ml目安。<br/>
+    ・<b>塩分: 6〜8粒に増量</b>（1時間に1粒必須）。スポドリ比率を高める。
+  </div>
+
+  <!-- 曇り -->
+  <div style="background:#f8fafc; border-left:4px solid #0284c7; padding:6px 8px; border-radius:4px; margin-bottom:6px; font-size:12px;">
+    <b style="color:#0284c7;">☁️ 曇り（気温14〜18℃・基準天候）</b><br/>
+    ・<b>給水: 2,500ml（計画通り）</b> 15〜20分おきに100mlの定時給水。<br/>
+    ・<b>塩分: 4〜5粒（計画通り）</b>。モルテン＋補給食をタイムテーブル通り完全実行。
+  </div>
+
+  <!-- 雨 -->
+  <div style="background:#f0fdf4; border-left:4px solid #059669; padding:6px 8px; border-radius:4px; font-size:12px;">
+    <b style="color:#059669;">🌧️ 雨（気温8〜13℃・冷え・雨風）</b><br/>
+    ・<b>給水: 1,800〜2,000ml（やや控えめ）</b> 頻尿・胃の冷え防止。一口ずつ湿らす。<br/>
+    ・<b>糖質: 減らさず厳守！</b> 寒さで糖質消費が跳ね上がるためGEL・パンは必食。<br/>
+    ・<b>保温:</b> エイドでは常温・温かいお茶を選ぶ。レインウェアで体を冷やさない。
+  </div>
+</div>
+
+<div class="timeline">
+
+  <!-- 03:00 -->
+  <div class="card">
+    <div class="card-top">
+      <div class="time-dist">
+        <span class="time">03:00</span>
+        <span class="dist">前3時間</span>
+      </div>
+      <label class="check-area"><input type="checkbox" class="check-box"> 済</label>
+    </div>
+    <div class="item-title">朝食：白米180g ＋ チキンカレー</div>
+    <div class="water-box" style="background:#fef3c7; color:#b45309; border-color:#fde68a;">給水：ホット野菜ジュース 200ml</div>
+    <div class="info-grid">
+      <span class="info-label">摂取目安:</span>
+      <span class="info-val">白米180g＋ルー＋野菜ジュース (約550kcal / 糖質95g)</span>
+    </div>
+    <div class="point">ホット野菜ジュースで胃腸を温め、カリウム（足攣り予防）と糖質を優しくチャージ！3時間で完全消化。</div>
+  </div>
+
+  <!-- 04:30 -->
+  <div class="card">
+    <div class="card-top">
+      <div class="time-dist">
+        <span class="time">04:30</span>
+        <span class="dist">前90分</span>
+      </div>
+      <label class="check-area"><input type="checkbox" class="check-box"> 済</label>
+    </div>
+    <div class="item-title">バナナ1本 ＋ ミネラル水</div>
+    <div class="water-box">給水：水 200ml</div>
+    <div class="info-grid">
+      <span class="info-label">摂取目安:</span>
+      <span class="info-val">バナナ1本 (約100kcal)</span>
+    </div>
+    <div class="point">即効性の果糖・ブドウ糖＋カリウム補給で足攣り予防。</div>
+  </div>
+
+  <!-- 05:30 -->
+  <div class="card">
+    <div class="card-top">
+      <div class="time-dist">
+        <span class="time">05:30</span>
+        <span class="dist">前30分</span>
+      </div>
+      <label class="check-area"><input type="checkbox" class="check-box"> 済</label>
+    </div>
+    <div class="item-title">くらしにベルク インチャージゼリー 1本</div>
+    <div class="water-box">水分：ゼリー水分 約150ml</div>
+    <div class="info-grid">
+      <span class="info-label">摂取目安:</span>
+      <span class="info-val">マスカット味1パック (180kcal)</span>
+    </div>
+    <div class="point">胃に固形物を残さず血糖値を安定化。スタート直後の筋分解を防止。</div>
+  </div>
+
+  <!-- 06:00 START -->
+  <div class="card event">
+    <div class="card-top">
+      <div class="time-dist">
+        <span class="time">06:00</span>
+        <span class="dist">0 km スタート</span>
+      </div>
+      <label class="check-area"><input type="checkbox" class="check-box"> 出発</label>
+    </div>
+    <div class="item-title">【スタート】東松山中央会場 出発！</div>
+    <div class="water-box">給水開始：モルテン500ml ＋ スポドリ/水</div>
+    <div class="info-grid">
+      <span class="info-label">ペース:</span>
+      <span class="info-val">キロ8分巡航ペース（時速7.5km）</span>
+    </div>
+    <div class="point">ダブルボトル携行。15〜20分おきに1〜2口含む定時給水を開始！</div>
+  </div>
+
+  <!-- 06:40 (5km) -->
+  <div class="card">
+    <div class="card-top">
+      <div class="time-dist">
+        <span class="time">06:40</span>
+        <span class="dist">約 5 km</span>
+      </div>
+      <label class="check-area"><input type="checkbox" class="check-box"> 済</label>
+    </div>
+    <div class="item-title">DRINK MIX 320 ＋ スポドリ ＋ 塩タブ</div>
+    <div class="water-box">給水：モルテン100ml ＋ スポ100ml（計200ml）</div>
+    <div class="info-grid">
+      <span class="info-label">品目・熱量:</span>
+      <span class="info-val">塩分タブレット1粒 (約67kcal)</span>
+    </div>
+    <div class="point">喉の渇きに関係なく定時給水。発汗初期の電解質流出を先手でカバー。</div>
+  </div>
+
+  <!-- 07:20 (10km) GEL1 -->
+  <div class="card maurten">
+    <div class="card-top">
+      <div class="time-dist">
+        <span class="time">07:20</span>
+        <span class="dist">約 10 km</span>
+      </div>
+      <label class="check-area"><input type="checkbox" class="check-box"> 済</label>
+    </div>
+    <div class="item-title"><span class="badge-gel">GEL 1</span>MAURTEN GEL 100【第1弾】</div>
+    <div class="water-box">給水：モルテン50ml ＋ 水150ml（計200ml）</div>
+    <div class="info-grid">
+      <span class="info-label">熱量・糖質:</span>
+      <span class="info-val">GEL100＋モルテン (計132kcal / 糖質33g)</span>
+    </div>
+    <div class="point"><b>【噛まずにつるんと飲む】</b> 胃を素通りして即時吸収。グリコーゲン温存開始。</div>
+  </div>
+
+  <!-- 08:00 (15km) -->
+  <div class="card">
+    <div class="card-top">
+      <div class="time-dist">
+        <span class="time">08:00</span>
+        <span class="dist">約 15 km</span>
+      </div>
+      <label class="check-area"><input type="checkbox" class="check-box"> 済</label>
+    </div>
+    <div class="item-title">井村屋 スポーツようかん 1本</div>
+    <div class="water-box">給水：モルテン100ml ＋ スポ150ml（計250ml）</div>
+    <div class="info-grid">
+      <span class="info-label">品目・熱量:</span>
+      <span class="info-val">羊羹1本＋モルテン (計177kcal / 糖質44g)</span>
+    </div>
+    <div class="point">持続性糖質パラチノース＋塩分補給。固形の食感で脳の満足感を刺激。</div>
+  </div>
+
+  <!-- 08:40 (20km) GEL2 -->
+  <div class="card maurten">
+    <div class="card-top">
+      <div class="time-dist">
+        <span class="time">08:40</span>
+        <span class="dist">約 20 km</span>
+      </div>
+      <label class="check-area"><input type="checkbox" class="check-box"> 済</label>
+    </div>
+    <div class="item-title"><span class="badge-gel">GEL 2</span>MAURTEN GEL 100【第2弾】＋ 塩タブ</div>
+    <div class="water-box">給水：モルテン100ml ＋ 水150ml（計250ml）</div>
+    <div class="info-grid">
+      <span class="info-label">品目・熱量:</span>
+      <span class="info-val">GEL100＋モルテン＋塩タブ1粒 (計164kcal)</span>
+    </div>
+    <div class="point">前半の疲労蓄積を遮断。糖質血中濃度を高水準キープ。</div>
+  </div>
+
+  <!-- 09:20 (25km 中間) -->
+  <div class="card">
+    <div class="card-top">
+      <div class="time-dist">
+        <span class="time">09:20</span>
+        <span class="dist">約 25 km 中間点</span>
+      </div>
+      <label class="check-area"><input type="checkbox" class="check-box"> 済</label>
+    </div>
+    <div class="item-title">ヤマザキ 薄皮つぶあんぱん 1個</div>
+    <div class="water-box">給水：モルテン150ml(完飲!) ＋ スポ150ml（計300ml）</div>
+    <div class="info-grid">
+      <span class="info-label">熱量・品目:</span>
+      <span class="info-val">あんぱん＋モルテン完飲 (計231kcal / 糖質50g)</span>
+    </div>
+    <div class="point"><b>【中間点ケア】</b> 脂質わずか1g！空腹感を防止。<b>モルテン500mlをここで完飲！</b></div>
+  </div>
+
+  <!-- 10:00 (30km) GEL3 -->
+  <div class="card maurten">
+    <div class="card-top">
+      <div class="time-dist">
+        <span class="time">10:00</span>
+        <span class="dist">約 30 km 壁突破</span>
+      </div>
+      <label class="check-area"><input type="checkbox" class="check-box"> 済</label>
+    </div>
+    <div class="item-title"><span class="badge-gel">GEL 3</span>MAURTEN GEL 100【第3弾】＋ 干し梅</div>
+    <div class="water-box">給水：水150ml ＋ スポ150ml（計300ml）</div>
+    <div class="info-grid">
+      <span class="info-label">品目・熱量:</span>
+      <span class="info-val">GEL100(100kcal) ＋ 干し梅1粒 (計120kcal)</span>
+    </div>
+    <div class="point"><b>【魔の30km壁突破】</b> 後半はエイド水・スポドリへ移行。干し梅のクエン酸で疲労回復。</div>
+  </div>
+
+  <!-- 10:45 (35km) -->
+  <div class="card">
+    <div class="card-top">
+      <div class="time-dist">
+        <span class="time">10:45</span>
+        <span class="dist">約 35 km</span>
+      </div>
+      <label class="check-area"><input type="checkbox" class="check-box"> 済</label>
+    </div>
+    <div class="item-title">カステラ 1切れ ＋ 給水 ＋ 塩飴 1粒</div>
+    <div class="water-box">給水：スポ200ml ＋ 水100ml（計300ml）</div>
+    <div class="info-grid">
+      <span class="info-label">品目・熱量:</span>
+      <span class="info-val">カステラ1切＋塩飴1粒 (約145kcal)</span>
+    </div>
+    <div class="point">終盤の粘り。低脂質・超速吸収のカステラで燃料補強。しっかり給水。</div>
+  </div>
+
+  <!-- 11:20 (40km) GEL4 -->
+  <div class="card maurten">
+    <div class="card-top">
+      <div class="time-dist">
+        <span class="time">11:20</span>
+        <span class="dist">約 40 km 勝負所</span>
+      </div>
+      <label class="check-area"><input type="checkbox" class="check-box"> 済</label>
+    </div>
+    <div class="item-title"><span class="badge-gel">GEL 4</span>MAURTEN GEL 100【第4弾・最終燃料】</div>
+    <div class="water-box">給水：スポ150ml ＋ 水150ml（計300ml）</div>
+    <div class="info-grid">
+      <span class="info-label">熱量・糖質:</span>
+      <span class="info-val">GEL100 (約120kcal / 糖質30g)</span>
+    </div>
+    <div class="point"><b>【ラスト10km直前投入】</b> 動悸の心配ゼロ！ハイドロゲル燃料でゴールまで失速ゼロ！</div>
+  </div>
+
+  <!-- 12:05 (46km) -->
+  <div class="card">
+    <div class="card-top">
+      <div class="time-dist">
+        <span class="time">12:05</span>
+        <span class="dist">約 46 km</span>
+      </div>
+      <label class="check-area"><input type="checkbox" class="check-box"> 済</label>
+    </div>
+    <div class="item-title">水またはスポドリ（ラスト給水）</div>
+    <div class="water-box">給水：水またはスポドリ 200ml</div>
+    <div class="info-grid">
+      <span class="info-label">状態:</span>
+      <span class="info-val">ラスト4km スパート</span>
+    </div>
+    <div class="point">口を潤し脱水を防ぎつつ、笑顔で中央会場ゴールへ！</div>
+  </div>
+
+  <!-- 12:40 GOAL -->
+  <div class="card event">
+    <div class="card-top">
+      <div class="time-dist">
+        <span class="time">12:40</span>
+        <span class="dist">50 km GOAL!</span>
+      </div>
+      <label class="check-area"><input type="checkbox" class="check-box"> 完歩</label>
+    </div>
+    <div class="item-title">【ゴール】中央会場 到着！（所要 6時間40分）</div>
+    <div class="water-box">給水実績：走行中水分 2,500ml 完飲！</div>
+    <div class="info-grid">
+      <span class="info-label">熱量実績:</span>
+      <span class="info-val">走行中熱量 約1,240 kcal 完遂！</span>
+    </div>
+    <div class="point"><b>脱水・動悸・ガス欠ゼロで堂々ゴール！お疲れ様でした！</b></div>
+  </div>
+
+  <!-- 12:55 RECOVERY -->
+  <div class="card recovery">
+    <div class="card-top">
+      <div class="time-dist">
+        <span class="time">12:55</span>
+        <span class="dist">ゴール後30分以内</span>
+      </div>
+      <label class="check-area"><input type="checkbox" class="check-box"> 済</label>
+    </div>
+    <div class="item-title">【超重要】黄金期超回復セット</div>
+    <div class="water-box">給水：牛乳200ml ＋ 水200ml（計400ml）</div>
+    <div class="info-grid">
+      <span class="info-label">品目・熱量:</span>
+      <span class="info-val">牛乳1本 ＋ カステラ2切れ (約330kcal)</span>
+    </div>
+    <div class="point"><b>筋破壊抑制＆グリコーゲン急速再合成！</b> 3連戦を可能にする最重要儀式。明日への回復。</div>
+  </div>
+
+  <!-- 13:30 LUNCH -->
+  <div class="card">
+    <div class="card-top">
+      <div class="time-dist">
+        <span class="time">13:30</span>
+        <span class="dist">昼食（回復）</span>
+      </div>
+      <label class="check-area"><input type="checkbox" class="check-box"> 済</label>
+    </div>
+    <div class="item-title">ベルク 親子丼（または肉うどん）＋ 味噌汁</div>
+    <div class="water-box">水分：温かい麦茶 300ml</div>
+    <div class="info-grid">
+      <span class="info-label">熱量・栄養:</span>
+      <span class="info-val">約650kcal (糖質100g / タンパク質25g)</span>
+    </div>
+    <div class="point">揚げ物を排除。卵・鶏肉の良質タンパク質と出汁で温め胃腸を労わる。</div>
+  </div>
+
+  <!-- 18:00 DINNER -->
+  <div class="card">
+    <div class="card-top">
+      <div class="time-dist">
+        <span class="time">18:00</span>
+        <span class="dist">夕食（充填）</span>
+      </div>
+      <label class="check-area"><input type="checkbox" class="check-box"> 済</label>
+    </div>
+    <div class="item-title">豚生姜焼き定食風（大盛りご飯＋豚肉＋豚汁＋冷奴）</div>
+    <div class="water-box">水分：豚汁 ＋ お茶 300ml</div>
+    <div class="info-grid">
+      <span class="info-label">熱量・栄養:</span>
+      <span class="info-val">約850kcal (糖質120g / タンパク質30g)</span>
+    </div>
+    <div class="point">豚肉のビタミンB1で糖代謝促進。ご飯大盛りで明朝の筋肉へグリコーゲン再充填。</div>
+  </div>
+
+  <!-- 21:00 NIGHT -->
+  <div class="card">
+    <div class="card-top">
+      <div class="time-dist">
+        <span class="time">21:00</span>
+        <span class="dist">就寝前</span>
+      </div>
+      <label class="check-area"><input type="checkbox" class="check-box"> 済</label>
+    </div>
+    <div class="item-title">ホットミルク 200ml ＋ バナナ</div>
+    <div class="water-box">水分：ホットミルク 200ml</div>
+    <div class="info-grid">
+      <span class="info-label">熱量:</span>
+      <span class="info-val">約150kcal</span>
+    </div>
+    <div class="point">睡眠中の筋修復タンパク質と快眠アミノ酸補給。足を10cm高くして就寝。</div>
+  </div>
+
+</div>
+
+<div class="footer">
+  第49回 日本スリーデーマーチ 2026年版 補給計画
+</div>
+
+<script>
+  // チェック状態をlocalStorageに保存（キーはカードの時刻）
+  // 古いiOS Safariでも動くようES5で記述。保存できない環境（プレビュー表示・プライベートモード等）では保存だけ諦める
+  (function () {
+    var KEY = '3daymarch-timetable';
+    var store = {};
+    try { store = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) {}
+    function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} }
+
+    // 保存できる環境かをフッターに表示（原因切り分け用）
+    var ok = false;
+    try { localStorage.setItem(KEY + '-t', '1'); ok = localStorage.getItem(KEY + '-t') === '1'; localStorage.removeItem(KEY + '-t'); } catch (e) {}
+    document.querySelector('.footer').insertAdjacentHTML('beforeend',
+      '<br>保存: ' + (ok ? '有効' : '<b style="color:#dc2626">無効（この開き方では記録できません）</b>') +
+      '<br>' + location.protocol + '//' + location.host + (window.top !== window ? '（埋め込み表示）' : ''));
+
+    // 埋め込み（プレビュー）表示だと保存できないため、単体で開くリンクを出す
+    if (window.top !== window) document.body.insertAdjacentHTML('afterbegin',
+      '<a href="' + location.href + '" target="_blank" style="display:block;background:#dc2626;color:#fff;text-align:center;padding:10px;border-radius:8px;margin-bottom:10px;font-weight:bold;text-decoration:none;">↗ 記録を残すにはここをタップして単体で開く</a>');
+
+    var boxes = document.querySelectorAll('.check-box');
+    for (var i = 0; i < boxes.length; i++) (function (b) {
+      var k = b.closest('.card').querySelector('.time').textContent.replace(/^\s+|\s+$/g, '');
+      b.checked = !!store[k];
+      b.addEventListener('change', function () { store[k] = b.checked; save(); });
+    })(boxes[i]);
+
+    // 全チェックを初期化（翌日の朝に使う）
+    document.getElementById('reset-btn').addEventListener('click', function () {
+      if (!confirm('すべてのチェックを外しますか？')) return;
+      store = {};
+      save();
+      for (var j = 0; j < boxes.length; j++) boxes[j].checked = false;
+    });
+  })();
+</script>
+
+</body>
+</html>

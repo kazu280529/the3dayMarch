@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0">
+<meta name="format-detection" content="telephone=no">
+<title>50km準備・買い物チェックリスト</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+    background-color: #f1f5f9;
+    color: #1e293b;
+    line-height: 1.4;
+    padding: 10px 8px 50px 8px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .header {
+    background: #1b365d;
+    color: #ffffff;
+    padding: 14px 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  .header h1 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+  }
+  .header .sub {
+    font-size: 13px;
+    color: #f1c40f;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+  .header-desc {
+    font-size: 11px;
+    color: #cbd5e1;
+    line-height: 1.35;
+  }
+
+  /* ナビゲーションリンク */
+  .nav-bar {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+  .nav-btn {
+    display: inline-block;
+    background: #0284c7;
+    color: white;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: bold;
+    padding: 8px 16px;
+    border-radius: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  /* セクション見出し */
+  .section-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: #ffffff;
+    padding: 7px 10px;
+    border-radius: 6px;
+    margin: 14px 0 8px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .sec-home { background: #059669; }
+  .sec-belc-run { background: #2563eb; }
+  .sec-belc-rest { background: #d97706; }
+  .sec-daily { background: #7c3aed; }
+  .sec-gear { background: #475569; }
+
+  .item-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  /* チェックアイテムカード */
+  .item-card {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 10px 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    border-left: 5px solid #cbd5e1;
+  }
+  .item-card.p-home { border-left-color: #059669; background: #f0fdf4; }
+  .item-card.p-run { border-left-color: #2563eb; }
+  .item-card.p-rest { border-left-color: #d97706; }
+  .item-card.p-daily { border-left-color: #7c3aed; }
+  .item-card.p-gear { border-left-color: #475569; }
+
+  .item-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .item-check-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    cursor: pointer;
+    flex: 1;
+  }
+  .check-box {
+    width: 22px;
+    height: 22px;
+    accent-color: #1b365d;
+    cursor: pointer;
+    margin-top: 1px;
+    flex-shrink: 0;
+  }
+  .item-name {
+    font-size: 15px;
+    font-weight: bold;
+    color: #0f172a;
+    line-height: 1.3;
+  }
+  .item-qty {
+    font-size: 13px;
+    font-weight: 800;
+    color: #dc2626;
+    background: #fee2e2;
+    padding: 2px 7px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+
+  .item-details {
+    margin-top: 6px;
+    padding-left: 30px;
+    font-size: 12px;
+    color: #475569;
+    line-height: 1.35;
+  }
+  .item-sub {
+    color: #0284c7;
+    font-weight: 600;
+  }
+
+  .tip-box {
+    background: #fef9e7;
+    border: 1px solid #f5b041;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 11px;
+    color: #78350f;
+    margin-top: 14px;
+    line-height: 1.4;
+  }
+
+  .footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 11px;
+    color: #64748b;
+    padding: 10px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>日本スリーデーマーチ 50km</h1>
+  <div class="sub">用意するもの・買い物チェックリスト</div>
+  <div class="header-desc">
+    大会前日（10/31）のベルク買い出し ＆ 荷物パッキング用<br/>
+    タップしてカゴに入れた品・準備できた品をチェック！
+  </div>
+</div>
+
+<div class="nav-bar" style="gap:8px;">
+  <a href="スマホ用_50km補給タイムテーブル.html" class="nav-btn">⏱ 補給タイムテーブルを見る</a>
+  <button type="button" id="reset-btn" class="nav-btn" style="background:#dc2626;border:none;cursor:pointer;">↺ リセット</button>
+</div>
+
+<!-- セクション1: 自宅から持参 -->
+<div class="section-title sec-home">
+  <span>①【自宅から持参】手元のモルテン品</span>
+  <span style="font-size:11px;">※購入済み</span>
+</div>
+<div class="item-list">
+
+  <div class="item-card p-home">
+    <div class="item-header">
+      <label class="item-check-label">
+        <input type="checkbox" class="check-box">
+        <span class="item-name">MAURTEN DRINK MIX 320</span>
+      </label>
+      <span class="item-qty">3 袋</span>
+    </div>
+    <div class="item-details">
+      <span class="item-sub">使用：1日1袋（全量使用）</span><br/>
+      毎朝軟水500mlに溶かす。飲むエネルギー燃料。
+    </div>
+  </div>
+
+  <div class="item-card p-home">
+    <div class="item-header">
+      <label class="item-check-label">
+        <input type="checkbox" class="check-box">
+        <span class="item-name">MAURTEN GEL 100（カフェイン無）</span>
+      </label>
+      <span class="item-qty">12 袋</span>
+    </div>
+    <div class="item-details">
+      <span class="item-sub">使用：1日4袋（1箱全量使用）</span><br/>
+      10km、20km、30km、40kmで摂取。ポケットに4袋携帯。
+    </div>
+  </div>
+
+</div>
+
+<!-- セクション2: ベルクまとめ買い（走行中） -->
+<div class="section-title sec-belc-run">
+  <span>②【ベルク前日購入】走行中・直前用</span>
+  <span style="font-size:11px;">まとめ買い</span>
+</div>
+<div class="item-list">
+
+  <div class="item-card p-run">
+    <div class="item-header">
+      <label class="item-check-label">
+        <input type="checkbox" class="check-box">
+        <span class="item-name">くらしにベルク インチャージゼリー</span>
+      </label>
+      <span class="item-qty">3 本</span>
+    </div>
+    <div class="item-details">
+      <span class="item-sub">エネルギー マスカット味 (180kcal)</span><br/>
+      毎朝5:30（スタート30分前）に1本摂取。
+    </div>
+  </div>
+
+  <div class="item-card p-run">
+    <div class="item-header">
+      <label class="item-check-label">
+        <input type="checkbox" class="check-box">
+        <span class="item-name">ポカリスエット 500ml</span>
+      </label>
+      <span class="item-qty">6 本</span>
+    </div>
+    <div class="item-details">
+      <span class="item-sub">使用：1日2本（1,000ml分）</span><br/>
+      走行中の基本給水。電解質・糖分補給。
+    </div>
+  </div>
+
+  <div class="item-card p-run">
+    <div class="item-header">
+      <label class="item-check-label">
+        <input type="checkbox" class="check-box">
+        <span class="item-name">ベルク天然水 500ml（軟水）</span>
+      </label>
+      <span class="item-qty">6 本</span>
+    </div>
+    <div class="item-details">
+      <span class="item-sub">使用：1日2本（1,000ml分）</span><br/>
+      モルテン溶解用（必ず日本の軟水）＋基本給水用。
+    </div>
+  </div>
+
+  <div class="item-card p-run">
+    <div class="item-header">
+      <label class="item-check-label">
+        <input type="checkbox" class="check-box">
+        <span class="item-name">ヤマザキ 薄皮つぶあんぱん（4個入）</span>
+      </label>
+      <span class="item-qty">1 袋</span>
+    </div>
+    <div class="item-details">
+      <span class="item-sub">使用：1日1個（計3個使用）</span><br/>
+      中間点25kmで摂取。脂質わずか1gで胃もたれゼロ。
+    </div>
+  </div>
+
+  <div class="item-card p-run">
+    <div class="item-header">
+      <label class="item-check-label">
+        <input type="checkbox" class="check-box">
+        <span class="item-name">井村屋 スポーツようかん（またはミニ羊羹）</span>
+      </label>
+      <span class="item-qty">3～6 本</span>
+    </div>
+    <div class="item-details">
+      <span class="item-sub">使用：1日1～2本</span><br/>
+      15km等で摂取。持続性糖質＋塩分。
+    </div>
+  </div>
+
+  <div class="item-card p-run">
+    <div class="item-header">
+      <label class="item-check-label">
+        <input type="checkbox" class="check-box">
+        <span class="item-name">カバヤ 塩分チャージタブレッツ</span>
+      </label>
+      <span class="item-qty">1 袋</span>
+    </div>
+    <div class="item-details">
+      <span class="item-sub">使用：1日3～4粒</span><br/>
+      発汗時のナトリウム＋クエン酸補給。足攣り防止。
+    </div>
+  </div>
+
+  <div class="item-card p-run">
+    <div class="item-header">
+      <label class="item-check-label">
+        <input type="checkbox" class="check-box">
+        <span class="item-name">種なし 干し梅（または塩飴）</span>
+      </label>
+      <span class="item-qty">1 袋</span>
+    </div>
+    <div class="item-details">
+      <span class="item-sub">使用：1日1～2粒</span><br/>
+      30km地点で摂取。強烈な酸味で疲労リフレッシュ。
+    </div>
+  </div>
+
+</div>
+
+<!-- セクション3: ベルクまとめ買い（朝・夜・回復） -->
+<div class="section-title sec-belc-rest">
+  <span>③【ベルク前日購入】回復食・朝食・夜用</span>
+  <span style="font-size:11px;">まとめ買い</span>
+</div>
+<div class="item-list">
+
+  <div class="item-card p-rest">
+    <div class="item-header">
+      <label class="item-check-label">
+        <input type="checkbox" class="check-box">
+        <span class="item-name">ベルク牛乳 200ml パック</span>
+      </label>
+      <span class="item-qty">3 本</span>
+    </div>
+    <div class="item-details">
+      <span class="item-sub">使用：1日1本（ゴール直後30分以内）</span><br/>
+      カステラと一緒に飲む。筋破壊抑制＆超回復。
+    </div>
+  </div>
+
+  <div class="item-card p-rest">
+    <div class="item-header">
+      <label class="item-check-label">
+        <input type="checkbox" class="check-box">
+        <span class="item-name">カステラ切り落としパック</span>
+      </label>
+      <span class="item-qty">1 パック</span>
+    </div>
+    <div class="item-details">
+      <span class="item-sub">使用：ゴール直後2切れ ＋ 35km用1切れ</span><br/>
+      低脂質・超速吸収糖質。翌日への燃料充填。
+    </div>
+  </div>
+
+  <div class="item-card p-rest">
+    <div class="item-header">
+      <label class="item-check-label">
+        <input type="checkbox" class="check-box">
+        <span class="item-name">バナナ（房）</span>
+      </label>
+      <span class="item-qty">計 6 本</span>
+    </div>
+    <div class="item-details">
+      <span class="item-sub">使用：1日2本（朝4:30に1本、夜就寝前に1本）</span><br/>
+      カリウム・マグネシウム補給でこむら返りを防止。
+    </div>
+  </div>
+
+  <div class="item-card p-rest">
+    <div class="item-header">
+      <label class="item-check-label">
+        <input type="checkbox" class="check-box">
+        <span class="item-name">レトルトチキンカレー</span>
+      </label>
+      <span class="item-qty">3 個</span>
+    </div>
+    <div class="item-details">
+      <span class="item-sub">使用：毎朝3:00に1食</span><br/>
+      白米180gにかけて食べる。朝の糖質チャージ。
+    </div>
+  </div>
+
+  <div class="item-card p-rest">
+    <div class="item-header">
+      <label class="item-check-label">
+        <input type="checkbox" class="check-box">
+        <span class="item-name">白米（パックご飯または自炊用米）</span>
+      </label>
+      <span class="item-qty">3日分</span>
+    </div>
+    <div class="item-details">
+      <span class="item-sub">使用：朝180g ＋ 夕食用</span><br/>
+      朝は適量180gで胃もたれ防止。夜はしっかり充填。
+    </div>
+  </div>
+
+  <div class="item-card p-rest">
+    <div class="item-header">
+      <label class="item-check-label">
+        <input type="checkbox" class="check-box">
+        <span class="item-name">野菜ジュース（900mlボトル または 200mlパック×3）</span>
+      </label>
+      <span class="item-qty">3日分</span>
+    </div>
+    <div class="item-details">
+      <span class="item-sub">使用：毎朝3:00に温めて200cc（ホット野菜ジュース）</span><br/>
+      胃腸を優しく温め、カリウム（足攣り予防）・抗酸化物質・糖質を即座にチャージ！
+    </div>
+  </div>
+
+</div>
+
+<!-- セクション4: 各日購入（弁当） -->
+<div class="section-title sec-daily">
+  <span>④【ベルク各日購入】昼食・夕食惣菜</span>
+  <span style="font-size:11px;">毎日購入</span>
+</div>
+<div class="item-list">
+
+  <div class="item-card p-daily">
+    <div class="item-header">
+      <label class="item-check-label">
+        <input type="checkbox" class="check-box">
+        <span class="item-name">昼食：親子丼 または 肉うどん</span>
+      </label>
+      <span class="item-qty">各日1食</span>
+    </div>
+    <div class="item-details">
+      <span class="item-sub">13:30頃 摂取</span><br/>
+      <b>※揚げ物（唐揚げ・カツ）は絶対NG！</b><br/>
+      卵と鶏肉の良質タンパク質と出汁で胃腸を温める。
+    </div>
+  </div>
+
+  <div class="item-card p-daily">
+    <div class="item-header">
+      <label class="item-check-label">
+        <input type="checkbox" class="check-box">
+        <span class="item-name">夕食：豚生姜焼き定食風 ＋ 豚汁 ＋ 冷奴</span>
+      </label>
+      <span class="item-qty">各日1食</span>
+    </div>
+    <div class="item-details">
+      <span class="item-sub">18:00頃 摂取</span><br/>
+      豚肉のビタミンB1で糖代謝促進。ご飯は大盛りで明朝の筋肉へグリコーゲン再充填。
+    </div>
+  </div>
+
+</div>
+
+<!-- セクション5: 装備・常備薬 -->
+<div class="section-title sec-gear">
+  <span>⑤【装備品・常備薬】持ち物チェック</span>
+  <span style="font-size:11px;">事前準備</span>
+</div>
+<div class="item-list">
+
+  <div class="item-card p-gear">
+    <div class="item-header">
+      <label class="item-check-label">
+        <input type="checkbox" class="check-box">
+        <span class="item-name">ツムラ68番 芍薬甘草湯（薬局等）</span>
+      </label>
+      <span class="item-qty">3～6 包</span>
+    </div>
+    <div class="item-details">
+      <span class="item-sub">足攣り・こむら返り特効薬</span><br/>
+      足がピクついたらすぐ飲めるようポケットに常時2包携帯。
+    </div>
+  </div>
+
+  <div class="item-card p-gear">
+    <div class="item-header">
+      <label class="item-check-label">
+        <input type="checkbox" class="check-box">
+        <span class="item-name">ボトル2本（ダブルボトル用）</span>
+      </label>
+      <span class="item-qty">2 本</span>
+    </div>
+    <div class="item-details">
+      <span class="item-sub">500ml × 2本</span><br/>
+      ボトル①：モルテン専用（燃料用）<br/>
+      ボトル②：スポドリ・水（給水補充用）
+    </div>
+  </div>
+
+  <div class="item-card p-gear">
+    <div class="item-header">
+      <label class="item-check-label">
+        <input type="checkbox" class="check-box">
+        <span class="item-name">ウエストポーチ / ランニングリュック</span>
+      </label>
+      <span class="item-qty">1 個</span>
+    </div>
+    <div class="item-details">
+      ボトル2本、モルテンGEL4個、あんぱん、羊羹、スマホを無理なく揺れずに携帯できるもの。
+    </div>
+  </div>
+
+  <div class="item-card p-gear">
+    <div class="item-header">
+      <label class="item-check-label">
+        <input type="checkbox" class="check-box">
+        <span class="item-name">【雨天対策】雨具 ＆ 防水ジップロック</span>
+      </label>
+      <span class="item-qty">雨予報時</span>
+    </div>
+    <div class="item-details">
+      軽量レインポンチョ・キャップ（つば付き）・手袋。補給食・スマホを濡らさないジップロック数枚。
+    </div>
+  </div>
+
+</div>
+
+<div class="tip-box">
+  <b>★ モルテン作りの前夜ルール:</b><br/>
+  大会前夜、必ず「軟水の天然水500ml」にDRINK MIX 320を1袋溶かし、1分間よく振って冷蔵庫に入れておいてください。翌朝にはダマが完全に消えて綺麗なハイドロゲルが完成します。
+</div>
+
+<div class="footer">
+  第49回 日本スリーデーマーチ 2026年版 準備・買い物リスト
+</div>
+
+<script>
+  // チェック状態をlocalStorageに保存（キーは品名なので並び替えてもずれない）
+  // 古いiOS Safariでも動くようES5で記述。保存できない環境（プレビュー表示・プライベートモード等）では保存だけ諦める
+  (function () {
+    var KEY = '3daymarch-checklist';
+    var store = {};
+    try { store = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) {}
+    function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} }
+
+    // 保存できる環境かをフッターに表示（原因切り分け用）
+    var ok = false;
+    try { localStorage.setItem(KEY + '-t', '1'); ok = localStorage.getItem(KEY + '-t') === '1'; localStorage.removeItem(KEY + '-t'); } catch (e) {}
+    document.querySelector('.footer').insertAdjacentHTML('beforeend',
+      '<br>保存: ' + (ok ? '有効' : '<b style="color:#dc2626">無効（この開き方では記録できません）</b>') +
+      '<br>' + location.protocol + '//' + location.host + (window.top !== window ? '（埋め込み表示）' : ''));
+
+    // 埋め込み（プレビュー）表示だと保存できないため、単体で開くリンクを出す
+    if (window.top !== window) document.body.insertAdjacentHTML('afterbegin',
+      '<a href="' + location.href + '" target="_blank" style="display:block;background:#dc2626;color:#fff;text-align:center;padding:10px;border-radius:8px;margin-bottom:10px;font-weight:bold;text-decoration:none;">↗ 記録を残すにはここをタップして単体で開く</a>');
+
+    var boxes = document.querySelectorAll('.check-box');
+    for (var i = 0; i < boxes.length; i++) (function (b) {
+      var k = b.nextElementSibling.textContent.replace(/^\s+|\s+$/g, '');
+      b.checked = !!store[k];
+      b.addEventListener('change', function () { store[k] = b.checked; save(); });
+    })(boxes[i]);
+
+    // 全チェックを初期化
+    document.getElementById('reset-btn').addEventListener('click', function () {
+      if (!confirm('すべてのチェックを外しますか？')) return;
+      store = {};
+      save();
+      for (var j = 0; j < boxes.length; j++) boxes[j].checked = false;
+    });
+  })();
+</script>
+
+</body>
+</html>
