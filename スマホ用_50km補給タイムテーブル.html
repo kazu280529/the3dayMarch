@@ -205,6 +205,37 @@
   <button type="button" id="reset-btn" style="background:#dc2626; color:white; border:none; cursor:pointer; font-size:13px; font-weight:bold; padding:7px 16px; border-radius:20px; box-shadow:0 2px 4px rgba(0,0,0,0.1); margin-left:6px;">↺ リセット</button>
 </div>
 
+<!-- Apple Watch / カレンダー アラーム連携 -->
+<div style="background:#ffffff; border-radius:10px; padding:12px; margin-bottom:12px; box-shadow:0 2px 6px rgba(0,0,0,0.08); border:2px solid #2563eb;">
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+    <div style="font-size:15px; font-weight:800; color:#1b365d; display:flex; align-items:center; gap:6px;">
+      <span>⌚</span> Apple Watch アラーム一括登録
+    </div>
+    <span style="font-size:11px; background:#dbeafe; color:#1e40af; font-weight:bold; padding:2px 8px; border-radius:12px;">プラン1：カレンダー同期</span>
+  </div>
+  
+  <p style="font-size:12px; color:#475569; margin-bottom:10px; line-height:1.4;">
+    指定した日の全補給時間（全18件）に<b>通知・触覚バイブ付きアラーム</b>をiPhone／Apple Watchへ一括登録します。画面が消えていても時間通り手首が振動します。
+  </p>
+
+  <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:10px; background:#f8fafc; padding:8px; border-radius:6px; border:1px solid #e2e8f0;">
+    <label for="event-date" style="font-size:13px; font-weight:bold; color:#334155;">予定日:</label>
+    <input type="date" id="event-date" style="padding:6px 10px; font-size:14px; border:1px solid #cbd5e1; border-radius:6px; background:#ffffff; font-weight:bold; color:#1e293b;">
+    <button type="button" id="set-today-btn" style="background:#e2e8f0; border:none; padding:6px 10px; border-radius:6px; font-size:12px; font-weight:bold; color:#475569; cursor:pointer;">今日</button>
+  </div>
+
+  <button type="button" id="export-ics-btn" style="width:100%; background:linear-gradient(135deg, #2563eb, #1d4ed8); color:white; border:none; padding:12px 14px; border-radius:8px; font-size:14px; font-weight:bold; cursor:pointer; box-shadow:0 3px 6px rgba(37,99,235,0.25); display:flex; align-items:center; justify-content:center; gap:6px;">
+    <span>📅</span> カレンダー / Apple Watch に全登録 (.ics)
+  </button>
+  
+  <div id="ics-help" style="font-size:11px; color:#1e40af; margin-top:8px; line-height:1.5; background:#eff6ff; padding:8px 10px; border-radius:6px; border:1px solid #bfdbfe;">
+    💡 <b>取り込み手順:</b><br/>
+    ① ボタンを押すと「カレンダーに追加」画面が開くか、.icsファイルが保存されます。<br/>
+    ② 「すべて追加」を押してiPhoneカレンダーに登録します。<br/>
+    ③ <b>Apple Watch</b>の通知が「iPhoneを反映」になっていれば、該当時刻に手首が振動し、補給内容が表示されます。
+  </div>
+</div>
+
 <!-- 天候別の補給調整幅 -->
 <div style="background:#ffffff; border-radius:8px; padding:12px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,0.08); border:1px solid #cbd5e1;">
   <div style="font-size:14px; font-weight:bold; color:#1b365d; margin-bottom:8px; text-align:center;">
@@ -600,6 +631,159 @@
       save();
       for (var j = 0; j < boxes.length; j++) boxes[j].checked = false;
     });
+
+    // --- Apple Watch / カレンダー (.ics) アラーム一括登録機能 ---
+    var dateInput = document.getElementById('event-date');
+    var todayBtn = document.getElementById('set-today-btn');
+    var exportBtn = document.getElementById('export-ics-btn');
+
+    function formatYMD(d) {
+      var y = d.getFullYear();
+      var m = ('0' + (d.getMonth() + 1)).slice(-2);
+      var day = ('0' + d.getDate()).slice(-2);
+      return y + '-' + m + '-' + day;
+    }
+
+    if (dateInput) {
+      var now = new Date();
+      dateInput.value = formatYMD(now);
+      if (todayBtn) {
+        todayBtn.addEventListener('click', function () {
+          dateInput.value = formatYMD(new Date());
+        });
+      }
+    }
+
+    function cleanText(str) {
+      if (!str) return '';
+      return str.replace(/\r?\n|\r/g, ' ').replace(/\s+/g, ' ').replace(/^\s+|\s+$/g, '');
+    }
+
+    function escapeICS(str) {
+      if (!str) return '';
+      return str.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,');
+    }
+
+    if (exportBtn) {
+      exportBtn.addEventListener('click', function () {
+        var dateVal = (dateInput && dateInput.value) ? dateInput.value : formatYMD(new Date());
+        var ymd = dateVal.replace(/-/g, '');
+        var cards = document.querySelectorAll('.card');
+        var events = [];
+
+        var nowStamp = formatYMD(new Date()).replace(/-/g, '') + 'T000000Z';
+
+        for (var i = 0; i < cards.length; i++) {
+          var card = cards[i];
+          var timeEl = card.querySelector('.time');
+          if (!timeEl) continue;
+          var timeStr = cleanText(timeEl.textContent);
+          var parts = timeStr.split(':');
+          if (parts.length < 2) continue;
+
+          var hh = ('0' + parts[0]).slice(-2);
+          var mm = ('0' + parts[1]).slice(-2);
+
+          var distEl = card.querySelector('.dist');
+          var dist = distEl ? cleanText(distEl.textContent) : '';
+
+          var titleEl = card.querySelector('.item-title');
+          var title = titleEl ? cleanText(titleEl.textContent) : '補給タイム';
+
+          var waterEl = card.querySelector('.water-box');
+          var water = waterEl ? cleanText(waterEl.textContent) : '';
+
+          var infoEl = card.querySelector('.info-grid');
+          var info = infoEl ? cleanText(infoEl.textContent) : '';
+
+          var pointEl = card.querySelector('.point');
+          var point = pointEl ? cleanText(pointEl.textContent) : '';
+
+          // 15分後の終了時刻を計算
+          var sH = parseInt(hh, 10);
+          var sM = parseInt(mm, 10);
+          var eM = sM + 15;
+          var eH = sH;
+          if (eM >= 60) {
+            eM -= 60;
+            eH = (eH + 1) % 24;
+          }
+          var endHh = ('0' + eH).slice(-2);
+          var endMm = ('0' + eM).slice(-2);
+
+          var dtStart = ymd + 'T' + hh + mm + '00';
+          var dtEnd = ymd + 'T' + endHh + endMm + '00';
+          var uid = ymd + 'T' + hh + mm + '00-' + (i + 1) + '@3daymarch.50km';
+
+          var summary = '【補給 ' + timeStr + '】' + (dist ? '[' + dist + '] ' : '') + title;
+
+          var descLines = [];
+          if (dist) descLines.push('■ 区分: ' + dist);
+          if (water) descLines.push('■ ' + water);
+          if (info) descLines.push('■ ' + info);
+          if (point) descLines.push('■ 要点: ' + point);
+          var description = descLines.join('\\n');
+
+          events.push([
+            'BEGIN:VEVENT',
+            'UID:' + uid,
+            'DTSTAMP:' + nowStamp,
+            'DTSTART:' + dtStart,
+            'DTEND:' + dtEnd,
+            'SUMMARY:' + escapeICS(summary),
+            'DESCRIPTION:' + escapeICS(description),
+            'BEGIN:VALARM',
+            'ACTION:DISPLAY',
+            'DESCRIPTION:' + escapeICS(summary),
+            'TRIGGER:-PT0M',
+            'END:VALARM',
+            'END:VEVENT'
+          ].join('\r\n'));
+        }
+
+        if (events.length === 0) {
+          alert('タイムテーブルのデータを取得できませんでした。');
+          return;
+        }
+
+        var icsContent = [
+          'BEGIN:VCALENDAR',
+          'VERSION:2.0',
+          'PRODID:-//Japan Three Day March 50km//Supply Timetable//JA',
+          'CALSCALE:GREGORIAN',
+          'METHOD:PUBLISH',
+          events.join('\r\n'),
+          'END:VCALENDAR'
+        ].join('\r\n');
+
+        var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        var fileName = '50km補給_' + ymd + '.ics';
+
+        try {
+          if (isIOS) {
+            var uri = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(icsContent);
+            var a = document.createElement('a');
+            a.href = uri;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          } else {
+            var blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+          }
+        } catch (e) {
+          alert('カレンダーファイルの生成に失敗しました: ' + e.message);
+        }
+      });
+    }
   })();
 </script>
 
